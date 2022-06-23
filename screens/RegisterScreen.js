@@ -18,11 +18,7 @@ const RegisterScreen = ({navigation}) => {
 
     useEffect(() => {
      const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-        if(authUser){
-          navigation.replace('HomeScreen')
-        }else{
-          navigation.replace('LoginScreen')
-        }  
+
       });
       return () => unsubscribe()
     }, [navigation])
@@ -32,14 +28,16 @@ const  Register = async  ()=>{
     Alert.alert('Password does not match')
     return
   }else{
-    createUserWithEmailAndPassword(auth, email, password).then((userData) => {
-      updateProfile(auth,{
+    createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
+      updateProfile(userCredential.user,{
           displayName: fullname,
           email: email,
-          photoURL: imgUrl || require("../assets/imgPlacehodler.jpg")
+          photoURL:imgUrl
       })
      }).catch((error) => {
       Alert.alert(error.message)
+     }).finally(()=>{
+      navigation.replace("HomeScreen")
      })
   }
  

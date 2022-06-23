@@ -4,9 +4,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './screens/LoginScreen';
-import { NativeBaseProvider } from 'native-base';
+import { Avatar, NativeBaseProvider } from 'native-base';
 import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
+import { auth } from './firebase';
+import AddChatScreen from './screens/AddChatScreen';
 
 
 const stack = createStackNavigator();
@@ -28,12 +30,11 @@ export default function App() {
   return (
     <NativeBaseProvider>
       <NavigationContainer>
-        <stack.Navigator screenOptions={globalScreenOptions}>
+        <stack.Navigator  screenOptions={globalScreenOptions}>
           <stack.Screen name="LoginScreen" component={LoginScreen} options={{title:'Login'}} />
           <stack.Screen name="RegisterScreen" component={RegisterScreen} options={{title:'Register'}}  />
-          <stack.Screen name="HomeScreen" component={HomeScreen} options={{
-            title:'Home',
-            }} />
+          <stack.Screen name="HomeScreen" component={HomeScreen} />
+          <stack.Screen name="AddChatScreen" component={AddChatScreen} />
         </stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>

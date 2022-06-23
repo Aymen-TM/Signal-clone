@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import {Button, Image, Input, VStack,} from 'native-base'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { StatusBar } from 'expo-status-bar'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase'
 
 
@@ -14,21 +14,22 @@ const LoginScreen = ({navigation}) => {
     const [email, setEmail] = React.useState('')
     const [password, setPassword] = React.useState('')
 
-    const submitHandler = () => {
+    const LoginUser = () => {
         setEmail('')
         setPassword('')
+        signInWithEmailAndPassword(auth,email,password).then(()=>{
+            navigation.replace("HomeScreen")
+        })
     }
 
     useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-          if(authUser){
-            navigation.replace('HomeScreen')
-          }else{
-            navigation.replace('LoginScreen')
-          } 
+        if(authUser!=null){
+          navigation.replace('HomeScreen')
+        }
         });
         return () => unsubscribe()
-      }, [navigation])
+      }, [])
 
 
 
@@ -39,15 +40,15 @@ const LoginScreen = ({navigation}) => {
 
   return (
     <KeyboardAvoidingView behavior='padding' flex={1} keyboardVerticalOffset={-200}    >
-        <StatusBar style='light' />
+        <StatusBar style='auto' />
         <VStack flex="1" width={"full"} justifyContent={'center'}  alignItems={'center'} >
             <Image source={require('../assets/signal-logo.png')} style={{width: 150, height: 150}} alt="Signal Logo"/>
             <VStack marginTop={5} width={300} space={5}>
-                <Input placeholder="Email" textContentType='emailAddress' size={"lg"} value={email} onChangeText={(text)=>setEmail(text)} />
-                <Input placeholder="Password" textContentType='password' size={"lg"} value={password} onChangeText={(text)=>setPassword(text)} />
+                <Input placeholder="Email" type='text'  size={"lg"} value={email} onChangeText={(text)=>setEmail(text)} />
+                <Input placeholder="Password" type='password'  size={"lg"} value={password} onChangeText={(text)=>setPassword(text)} />
             </VStack>
             <VStack marginTop={5} width={200} space={5}>
-                <TouchableOpacity onPress={()=>submitHandler()}>
+                <TouchableOpacity onPress={()=>LoginUser()}>
                     <Button backgroundColor={"#2C6BED"}>Login</Button>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>nav_RegisterScreen()} activeOpacity={0.9}>
@@ -61,10 +62,3 @@ const LoginScreen = ({navigation}) => {
 }
 
 export default LoginScreen
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    }
-})
