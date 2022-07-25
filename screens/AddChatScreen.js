@@ -2,7 +2,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { Button, Icon, Input, VStack } from 'native-base'
 import {AntDesign} from '@expo/vector-icons'
-import {onSnapshot, collection, addDoc  } from "firebase/firestore"
+import {collection,addDoc} from "firebase/firestore"
 import { auth, db } from '../firebase'
 
 
@@ -11,7 +11,7 @@ const AddChatScreen = ({navigation}) => {
 
     const [chat,setChat] = useState('')
     const addChat =async ()=>{
-          const docRef = await addDoc(collection(db, "chats"), {
+          await addDoc(collection(db, "chats"), {
             id:auth?.currentUser?.uid,
             ChatName:chat
           }).then(()=>{

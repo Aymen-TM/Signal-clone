@@ -1,9 +1,10 @@
 import { StyleSheet,KeyboardAvoidingView, Alert } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Button, Heading, Input,VStack } from 'native-base'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { auth } from '../firebase'
-import { createUserWithEmailAndPassword, onAuthStateChanged, updateProfile } from 'firebase/auth'
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { AuthContext } from '../firebase/AuthProvider'
 
 
 
@@ -16,38 +17,9 @@ const RegisterScreen = ({navigation}) => {
     const [imgUrl, setimgUrl] = React.useState('')
 
 
-    useEffect(() => {
-     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+    const { register } = useContext(AuthContext);
 
-      });
-      return () => unsubscribe()
-    }, [navigation])
-
-const  Register = async  ()=>{
-  if(password !== confirmPassword){
-    Alert.alert('Password does not match')
-    return
-  }else{
-    createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
-      updateProfile(userCredential.user,{
-          displayName: fullname,
-          email: email,
-          photoURL:imgUrl
-      })
-     }).catch((error) => {
-      Alert.alert(error.message)
-     }).finally(()=>{
-      navigation.replace("HomeScreen")
-     })
-  }
- 
-
-   
-}
     
-
-
-
   return (
     <KeyboardAvoidingView behavior='padding' flex={1} keyboardVerticalOffset={-200} >
         <VStack flex={1} alignItems={'center'} justifyContent={'center'} space={5} >
@@ -59,7 +31,7 @@ const  Register = async  ()=>{
             <Input placeholder="Password confirmation" type='password' textContentType='password' size={"lg"} value={confirmPassword} onChangeText={(text)=>setConfirmPassword(text)} />
         </VStack>
         <VStack width={200}>
-          <TouchableOpacity onPress={()=>Register()} activeOpacity={0.8}>
+          <TouchableOpacity onPress={()=>register(email, password,fullname,null)} activeOpacity={0.8}>
             <Button  backgroundColor={"#2C6BED"}>Register</Button>
           </TouchableOpacity>
         </VStack>

@@ -1,10 +1,9 @@
 import {KeyboardAvoidingView, StyleSheet, View} from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useContext } from 'react'
 import {Button, Image, Input, VStack,} from 'native-base'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { StatusBar } from 'expo-status-bar'
-import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../firebase'
+import { AuthContext } from '../firebase/AuthProvider'
 
 
 
@@ -14,28 +13,10 @@ const LoginScreen = ({navigation}) => {
     const [email, setEmail] = React.useState('')
     const [password, setPassword] = React.useState('')
 
-    const LoginUser = () => {
-        setEmail('')
-        setPassword('')
-        signInWithEmailAndPassword(auth,email,password).then(()=>{
-            navigation.replace("HomeScreen")
-        })
-    }
-
-    useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-        if(authUser!=null){
-          navigation.replace('HomeScreen')
-        }
-        });
-        return () => unsubscribe()
-      }, [])
+    const { login } = useContext(AuthContext);
 
 
 
-    const nav_RegisterScreen = () => {
-        navigation.navigate('RegisterScreen')
-    }
     
 
   return (
@@ -48,7 +29,7 @@ const LoginScreen = ({navigation}) => {
                 <Input placeholder="Password" type='password'  size={"lg"} value={password} onChangeText={(text)=>setPassword(text)} />
             </VStack>
             <VStack marginTop={5} width={200} space={5}>
-                <TouchableOpacity onPress={()=>LoginUser()}>
+                <TouchableOpacity onPress={()=>login(email,password)}>
                     <Button backgroundColor={"#2C6BED"}>Login</Button>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>nav_RegisterScreen()} activeOpacity={0.9}>

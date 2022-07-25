@@ -1,20 +1,14 @@
 import React, { useEffect } from 'react'
 import { Avatar, Box, HStack, Pressable, Spacer, Text, VStack } from 'native-base'
 
-const CustomListItem = ({key,id,ChatName}) => {
+const CustomListItem = ({id,ChatName,enterChat}) => {
 
   useEffect(() => {
     console.log(ChatName);
-  
-
   }, [])
   
-
-
-
-
   return (
-      <Pressable onPress={() => console.log("You touched me")} >
+      <Pressable key={id} onPress={() => enterChat(id,ChatName)} >
         <Box pl="4" pr="5" py="2" backgroundColor={"white"}>
           <HStack alignItems="center" space={3}>
             <Avatar size="48px" source={{

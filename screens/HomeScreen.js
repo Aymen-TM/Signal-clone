@@ -1,11 +1,11 @@
-import { Alert, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import {SafeAreaView, StyleSheet, TouchableOpacity,Text} from 'react-native'
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { Avatar, HStack, ScrollView } from 'native-base'
 import CustomListItem from '../components/CustomListItem'
 import { auth, db } from '../firebase'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
 import {AntDesign,SimpleLineIcons} from '@expo/vector-icons';
-import { collection, doc, getDocs, onSnapshot, query } from 'firebase/firestore'
+import { collection,onSnapshot } from 'firebase/firestore'
+import { AuthContext } from '../firebase/AuthProvider'
 
 
 
@@ -14,16 +14,15 @@ import { collection, doc, getDocs, onSnapshot, query } from 'firebase/firestore'
 const HomeScreen = ({navigation}) => {
 
 
-  const [chats,setChats] = useState([])
+const [chats,setChats] = useState([])
+
+const {logout} = useContext(AuthContext);
 
 const signOutUser = ()=>{
-  signOut(auth).then(()=>{
-    navigation.replace("LoginScreen")
-  })
+  logout()
 }
 
 useLayoutEffect(() => {
-
   navigation.setOptions({
     title:"Signal",
     headerStyle:{backgroundColor:"#fff"},
@@ -31,10 +30,8 @@ useLayoutEffect(() => {
     headerTintColor:"black",
     headerLeft:()=>(
       <TouchableOpacity onPress={()=>signOutUser()} activeOpacity={0.8}>
-        <Avatar size="sm"  _text={{fontSize:"lg"}} marginLeft={5} source={{
-          uri:auth?.currentUser?.photoURL,
-        }}>
-          {auth?.currentUser?.displayName?.at(0).toLocaleUpperCase()}
+        <Avatar size="sm"  _text={{fontSize:"lg"}} marginLeft={5}>
+          {auth?.currentUser?.displayName.charAt(0).toUpperCase()}
         </Avatar>
       </TouchableOpacity>
     ),
@@ -47,19 +44,13 @@ useLayoutEffect(() => {
           <SimpleLineIcons name='pencil' size={24} color={"black"} activeOpacity={0.8} />
         </TouchableOpacity>
       </HStack>
-    )
+    ),
+    gestureEnabled: false 
   })
 }, [navigation])
 
 
 useEffect(() => {
-
-    onAuthStateChanged(auth, (authUser) => {
-      if(!authUser){
-        navigation.replace('LoginScreen')
-      }
-    });
-
     const unsub = onSnapshot(collection(db, "chats"), (querySnapshot) => {
       const documents= []
       querySnapshot.docs.map((doc) => {
@@ -71,24 +62,30 @@ useEffect(() => {
       setChats(documents)
     });
     return () => unsub();
-
-  
-
   }, [])
 
 
+  const enterChat = (id,ChatName)=>{
+    navigation.navigate("ChatScreen",{
+      id,
+      ChatName
+    })
+  }
 
-  return (
+
+    return(
     <SafeAreaView>
       <ScrollView >
         {
           chats.map(({id,data:{ChatName}})=>(
-            <CustomListItem id={id} ChatName={ChatName} />
+            <CustomListItem key={id} id={id} ChatName={ChatName} enterChat={enterChat} />
           ))
         }
       </ScrollView>
     </SafeAreaView>
-  )
+    )
+
+
 }
 
 export default HomeScreen

@@ -9,6 +9,9 @@ import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import { auth } from './firebase';
 import AddChatScreen from './screens/AddChatScreen';
+import ChatScreen from './screens/ChatScreen';
+import { AuthProvider } from './firebase/AuthProvider';
+import Routes from './navigation/Routes';
 
 
 const stack = createStackNavigator();
@@ -29,14 +32,9 @@ const globalScreenOptions = {
 export default function App() {
   return (
     <NativeBaseProvider>
-      <NavigationContainer>
-        <stack.Navigator  screenOptions={globalScreenOptions}>
-          <stack.Screen name="LoginScreen" component={LoginScreen} options={{title:'Login'}} />
-          <stack.Screen name="RegisterScreen" component={RegisterScreen} options={{title:'Register'}}  />
-          <stack.Screen name="HomeScreen" component={HomeScreen} />
-          <stack.Screen name="AddChatScreen" component={AddChatScreen} />
-        </stack.Navigator>
-      </NavigationContainer>
+      <AuthProvider>
+        <Routes />
+      </AuthProvider>
     </NativeBaseProvider>
   );
 }
