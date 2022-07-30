@@ -1,5 +1,5 @@
 import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Avatar, HStack,Text } from 'native-base'
 import { auth, db } from '../firebase'
 import {AntDesign,FontAwesome,Ionicons} from '@expo/vector-icons';
@@ -12,6 +12,9 @@ const ChatScreen = ({navigation,route}) => {
     const [message,setMessage] = useState(null)
 
     const sendMessage = async ()=>{
+      
+      Keyboard.dismiss()
+     
       const docRef = doc(db, "chats",route.params.id);
       const messageRef = collection(docRef,"messages");
       await addDoc(messageRef,{
@@ -22,7 +25,6 @@ const ChatScreen = ({navigation,route}) => {
         photoURL:auth.currentUser.photoURL,
       })
       setMessage('')
-
       }
     
     useLayoutEffect(() => {
@@ -62,6 +64,7 @@ const ChatScreen = ({navigation,route}) => {
 
 
     const [messages,setMessages] = useState([])
+    const scrollref = useRef();
 
     useEffect(() => {
       const docRef = doc(db, "chats",route.params.id);
@@ -83,39 +86,37 @@ const ChatScreen = ({navigation,route}) => {
 
   return (
     <SafeAreaView style={{flex: 1,backgroundColor: 'white'}}>
-      <KeyboardAvoidingView style={styles.container}  behavior={Platform.OS === 'ios' ? 'padding':'height'} keyboardVerticalOffset={100}>
+      <KeyboardAvoidingView  style={{flex: 1}}  behavior={Platform.OS === 'ios' ? 'padding':'height'} keyboardVerticalOffset={100}>
         <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()} >
-        <>
-          <ScrollView>
+          <>
+          <ScrollView   ref={scrollref} onContentSizeChange={() => scrollref.current.scrollToEnd({animated: true })}>
             {messages.map(({id,data})=>{
                if(data.email === auth.currentUser.email){
                 return(
-                  <HStack key={id} position={"relative"} alignSelf={"flex-end"} backgroundColor={"#ECECEC"} borderRadius={"lg"} marginRight={15} marginBottom={20} maxWidth={"80%"} padding={15}>
+                  <HStack key={id}  position={"relative"} alignSelf={"flex-end"} backgroundColor={"#ECECEC"} borderRadius={"lg"} marginRight={15} marginBottom={10} maxWidth={"80%"} padding={15}>
                     <Avatar position={"absolute"} size={30} rounded="full" bottom={-20} right={-5} >{auth.currentUser.displayName.charAt(0).toUpperCase()}</Avatar>
-                    <Text>{data.message}</Text>
+                    <Text fontWeight={'semibold'} >{data.message}</Text>
                   </HStack>
                 )
                }else{
                 return(
                 <HStack key={id} position={"relative"} alignSelf={"flex-start"} backgroundColor={"#2B68E6"} borderRadius={"lg"} margin={15}  maxWidth={"80%"} padding={15}>
                   <Avatar position={"absolute"} rounded="full" size={30} bottom={-15} left={-5} >{data.displayName.charAt(0).toUpperCase()}</Avatar>
-                  <Text>{data.message}</Text>
+                  <Text fontWeight={'semibold'} >{data.message}</Text>
                 </HStack>
                 )
                }
-
             })}
           </ScrollView>
-          <HStack padding={15} alignItems={'center'}>
-            <TextInput size="sm" placeholder="chat" style={styles.textInput} value={message} onChangeText={(text)=>{setMessage(text)}}  />
-            <TouchableOpacity onPress={()=>sendMessage()}>
-              <Ionicons name='send' color={"#2C6BED"} size={24}/>
-            </TouchableOpacity>
+          <HStack padding={15} alignItems={'center'} >
+              <TextInput size="sm" placeholder="chat" style={styles.textInput} value={message} onChangeText={(text)=>{setMessage(text)}}  />
+              <TouchableOpacity onPress={()=>sendMessage()}>
+                <Ionicons name='send' color={"#2C6BED"} size={24}/>
+              </TouchableOpacity>
           </HStack>
-        </>
+          </>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-      
     </SafeAreaView>
   )
 }
@@ -123,9 +124,6 @@ const ChatScreen = ({navigation,route}) => {
 export default ChatScreen
 
 const styles = StyleSheet.create({
-  container:{
-    flex:1,
-  },
   textInput:{
     bottom:0,
     height:40,

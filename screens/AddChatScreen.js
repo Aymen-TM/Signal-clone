@@ -10,21 +10,22 @@ import { auth, db } from '../firebase'
 const AddChatScreen = ({navigation}) => {
 
     const [chat,setChat] = useState('')
+    const [isDisabled, setIsDisabled] = useState(false);
+    
     const addChat =async ()=>{
+          setIsDisabled(true)
+          navigation.goBack()
           await addDoc(collection(db, "chats"), {
             id:auth?.currentUser?.uid,
             ChatName:chat
-          }).then(()=>{
-            navigation.goBack()
-          }).catch((error)=>{
-            Alert(error)
-          });
+          })
+          
     }
 
   return (
     <VStack flex={1} p={10} space={5}>
         <Input variant={"underlined"} value={chat} onChangeText={(text)=>setChat(text)} InputLeftElement={<Icon as={<AntDesign name='wechat'   />} size={8} color={"#2C6BED"}  />}  placeholder={"Chat name"} pl={5} fontSize={'xl'}  />
-        <Button backgroundColor={"#2C6BED"} onPress={()=>addChat()} >Add Chat</Button>
+        <Button disabled={isDisabled} backgroundColor={"#2C6BED"} onPress={()=>addChat()} >Add Chat</Button>
     </VStack>
   )
 }

@@ -6,14 +6,15 @@ import { StatusBar } from 'expo-status-bar'
 import { AuthContext } from '../firebase/AuthProvider'
 
 
-
-
-
 const LoginScreen = ({navigation}) => {
     const [email, setEmail] = React.useState('')
     const [password, setPassword] = React.useState('')
 
     const { login } = useContext(AuthContext);
+
+    function nav_RegisterScreen(){
+        navigation.navigate("RegisterScreen")
+    }
 
 
 
@@ -29,7 +30,7 @@ const LoginScreen = ({navigation}) => {
                 <Input placeholder="Password" type='password'  size={"lg"} value={password} onChangeText={(text)=>setPassword(text)} />
             </VStack>
             <VStack marginTop={5} width={200} space={5}>
-                <TouchableOpacity onPress={()=>login(email,password)}>
+                <TouchableOpacity onPress={()=>{login(email,password)}}>
                     <Button backgroundColor={"#2C6BED"}>Login</Button>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>nav_RegisterScreen()} activeOpacity={0.9}>

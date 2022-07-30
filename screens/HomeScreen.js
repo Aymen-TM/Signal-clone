@@ -1,8 +1,8 @@
 import {SafeAreaView, StyleSheet, TouchableOpacity,Text} from 'react-native'
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Avatar, HStack, ScrollView } from 'native-base'
 import CustomListItem from '../components/CustomListItem'
-import { auth, db } from '../firebase'
+import {db } from '../firebase'
 import {AntDesign,SimpleLineIcons} from '@expo/vector-icons';
 import { collection,onSnapshot } from 'firebase/firestore'
 import { AuthContext } from '../firebase/AuthProvider'
@@ -16,11 +16,13 @@ const HomeScreen = ({navigation}) => {
 
 const [chats,setChats] = useState([])
 
-const {logout} = useContext(AuthContext);
 
-const signOutUser = ()=>{
-  logout()
-}
+const {logout,user} = useContext(AuthContext);
+
+
+
+
+
 
 useLayoutEffect(() => {
   navigation.setOptions({
@@ -29,9 +31,9 @@ useLayoutEffect(() => {
     headerTitleStyle:{color:"black"},
     headerTintColor:"black",
     headerLeft:()=>(
-      <TouchableOpacity onPress={()=>signOutUser()} activeOpacity={0.8}>
+      <TouchableOpacity onPress={()=>logout()} activeOpacity={0.8}>
         <Avatar size="sm"  _text={{fontSize:"lg"}} marginLeft={5}>
-          {auth?.currentUser?.displayName.charAt(0).toUpperCase()}
+          {user?.displayName?.charAt(0).toUpperCase()}
         </Avatar>
       </TouchableOpacity>
     ),
@@ -51,17 +53,23 @@ useLayoutEffect(() => {
 
 
 useEffect(() => {
-    const unsub = onSnapshot(collection(db, "chats"), (querySnapshot) => {
-      const documents= []
-      querySnapshot.docs.map((doc) => {
-        documents.push({
-          id:doc.id,
-          data:doc.data()
-        })
+
+    const GetChats = ()=>{
+      onSnapshot(collection(db, "chats"), (querySnapshot) => {
+        const documents= []
+        querySnapshot.docs.map((doc) => {
+          documents.push({
+            id:doc.id,
+            data:doc.data()
+          })
+        });
+        setChats(documents)
       });
-      setChats(documents)
-    });
-    return () => unsub();
+    }
+    GetChats()
+    return () => {
+      GetChats
+    };
   }, [])
 
 
@@ -73,9 +81,11 @@ useEffect(() => {
   }
 
 
+
+
     return(
-    <SafeAreaView>
-      <ScrollView >
+    <SafeAreaView >
+      <ScrollView>
         {
           chats.map(({id,data:{ChatName}})=>(
             <CustomListItem key={id} id={id} ChatName={ChatName} enterChat={enterChat} />
